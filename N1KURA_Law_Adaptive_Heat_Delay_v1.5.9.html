@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>НФЗПН — Закон адаптивной задержки теплопереноса</title>
+
+<!-- MathJax -->
+<script>
+  window.MathJax = {
+    tex: { packages: {'[+]': ['ams']}, inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']], tags: 'ams' }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" defer></script>
+
+<style>
+  :root{
+    --ink:#0f1222; --muted:#667085; --line:#ECEFF3; --chip:#F2F6FF; --bg:#ffffff;
+    --accent:#2D5BFF; --note:#FFF7E6; --note-line:#FFE3B0;
+  }
+  *{box-sizing:border-box}
+  body{font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica Neue,Arial;margin:0;background:var(--bg);color:var(--ink)}
+  main{max-width:980px;margin:40px auto;padding:0 20px 80px}
+  h1,h2,h3{line-height:1.2}
+  h1{font-size:2rem;margin:0 0 .35rem}
+  .meta{color:var(--muted);margin:.25rem 0 .75rem}
+  .chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;list-style:none;padding-left:0}
+  .chips li{margin:0}
+  .chip{
+    display:inline-block;background:var(--chip);border:1px solid #dfe6ff;color:#1a2444;
+    padding:.25rem .6rem;border-radius:999px;font-size:.9rem;text-decoration:none;line-height:1
+  }
+  .chip:focus, .chip:hover{outline:none;border-color:#c9d6ff;background:#eaf0ff}
+  .hr{height:1px;background:var(--line);margin:24px 0}
+  .eq{background:#fbfbfb;border:1px solid var(--line);padding:12px 14px;border-radius:12px;margin:14px 0;overflow-x:auto}
+  .law{background:#f6ffef;border:1px solid #d8f5c4}
+  .small{color:#394055;font-size:.95rem}
+  .note{background:var(--note);border:1px solid var(--note-line);border-radius:10px;padding:10px 12px;margin:12px 0}
+  ul,ol{margin:8px 0 16px}
+  code{background:#f2f3f5;padding:.15rem .4rem;border-radius:6px}
+  table{border-collapse:collapse;width:100%;margin:12px 0 24px}
+  th,td{border:1px solid #E4E7EC;padding:8px 10px;text-align:left}
+  th{background:#FAFBFF}
+  .kbd{font-family:ui-monospace,Menlo,Monaco,"Cascadia Mono",Consolas,monospace}
+  .section{scroll-margin-top:80px}
+  .watermark{margin-top:28px;color:#97A3B6;font-size:.9rem}
+  figure{margin:12px 0;padding:10px;border:1px dashed #E4E7EC;border-radius:10px;background:#FCFCFE}
+  figcaption{color:#667085;font-size:.95rem;margin-top:6px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <h1>Закон адаптивной задержки теплопереноса</h1>
+  <div class="meta">Edited by Prof. N1KURA · version 1.5.9 · date 2025‑08‑15 · draft</div>
+
+  <!-- Семантический список тегов с rel="tag" -->
+  <ul class="chips" aria-label="Теги документа">
+    <li><a class="chip" href="#tag-nfzpn" rel="tag" title="Новые Физические Законы Профессора НИКУРЫ">НФЗПН</a></li>
+    <li><a class="chip" href="#tag-draft" rel="tag" title="Документ в разработке">Проект закона</a></li>
+    <li><a class="chip" href="#tag-thermal" rel="tag">Thermal Control</a></li>
+    <li><a class="chip" href="#tag-adaptive" rel="tag">Adaptive Materials</a></li>
+    <li><a class="chip" href="#tag-meta" rel="tag">Metamaterials</a></li>
+    <li><a class="chip" href="#tag-cv" rel="tag">Cattaneo–Vernotte</a></li>
+    <li><a class="chip" href="#tag-tdtr" rel="tag">TDTR</a></li>
+    <li><a class="chip" href="#tag-phonon" rel="tag">Phonon/Electron</a></li>
+    <li><a class="chip" href="#tag-apps" rel="tag">Applications</a></li>
+  </ul>
+</header>
+
+<section id="abstract" class="section">
+  <h2>Аннотация</h2>
+  <p>
+    В управляемых неоднородных средах минимальная задержка прихода теплового фронта определяется не только
+    материаловедческими параметрами, но и величиной проекции градиента управляемого параметра
+    \(\phi\) на направление теплового потока \(g=\nabla\phi\!\cdot\!\hat{\mathbf q}\).
+    На базе гиперболической модели Cattaneo–Vernotte в малоградиентном пределе получен универсальный закон,
+    задающий поправку к времени пролёта относительно однородного образца \(\tau_0\).
+  </p>
+
+  <div class="eq">
+    \[
+      \tau_{\text{total}}=\tau_0
+      + \alpha\,|\nabla\phi\!\cdot\!\hat{\mathbf q}|
+      + \beta\,(\nabla\phi\!\cdot\!\hat{\mathbf q})^2
+      + \mathcal{O}(|g|^3),
+      \qquad
+      g=\nabla\phi\!\cdot\!\hat{\mathbf q}
+    \]
+  </div>
+  <p class="small">
+    В знаковой (теоретической) форме модуль опускается: \(|\nabla\phi\!\cdot\!\hat{\mathbf q}|\to g\).
+    В 1D-редукции \(g=\partial\phi/\partial x\).
+  </p>
+
+  <p>
+    Коэффициенты \(\alpha\) и \(\beta\) выражаются через локальные функции материала, определяющие скорость теплового сигнала
+    \(v(\phi)=\sqrt{\kappa(\phi)/(\tau_c(\phi)\,\rho(\phi)c_p(\phi))}\), и подчиняются масштабам
+    \(\alpha\propto L^2\), \(\beta\propto L^3\) по длине образца \(L\).
+    Это связывает закон с измеримыми зависимостями \(\kappa(\phi)\), \(\tau_c(\phi)\), \(\rho(\phi)c_p(\phi)\) и делает возможной
+    идентификацию \(\alpha,\beta\) по экспериментальным данным.
+  </p>
+
+  <p>
+    Практический результат — технологический «динамический тепловой барьер»:
+    варьируя профиль \(\phi(x)\) (жидкокристаллические структуры, феррожидкости, функциональные композиты, градиентные покрытия),
+    можно предсказуемо увеличивать или уменьшать задержку теплового фронта. Это релевантно для электроники и силовых модулей,
+    опто- и фотонных устройств, а также для узлов с жёсткими требованиями к тепловым транзиентам (в т.ч. квантовые установки).
+  </p>
+
+  <p>
+    Область применимости: малоградиентный режим и небаллистический перенос; интерфейсные сопротивления контролируются и симметризуются;
+    профиль \(\phi\) квазистатичен за время пролёта. Предложен мини-протокол верификации (TDTR/фотоакустика/ИК-термография) и
+    безразмерная метрика эффективности \(\eta_{\text{delay}}=(\tau_{\text{total}}-\tau_0)/\tau_0\) для сравнения материалов и профилей.
+  </p>
+
+  <p class="small">
+    Статус: теоретическая модель (preprint/draft), требующая экспериментальной валидации.
+  </p>
+</section>
+
+<div class="hr"></div>
+
+<section id="intro" class="section">
+  <h2>1. Введение (Introduction)</h2>
+  <ul>
+    <li>Обоснование: управление теплопереносом определяет надёжность и производительность микро/нано‑систем.</li>
+    <li>Цель: ввести проверяемый закон, связывающий задержку теплового фронта с <em>градиентом</em> управляемого параметра среды.</li>
+    <li>Гипотеза: медленное по сравнению с фронтом изменение \(\phi(x)\) порождает дополнительную инерционность распространения, пропорциональную \(|\partial\phi/\partial x|\) (при малых градиентах).</li>
+  </ul>
+</section>
+
+<section id="prehistory" class="section">
+  <h2>2. Предыстория (Prehistory)</h2>
+  <ul>
+    <li>Фурье: мгновенная диффузия (парадокс бесконечной скорости). Каттанео–Вернотта (CV): вводит конечную скорость через время релаксации \(\tau_c\).</li>
+    <li>Известные модели не учитывают <em>управляемую</em> пространственную неоднородность свойств, меняющую скорость теплового сигнала по пути.</li>
+  </ul>
+</section>
+
+<section id="purpose" class="section">
+  <h2>3. Постановка цели (Purpose)</h2>
+  <p>Связать минимальную задержку прихода теплового импульса с величиной \(|\partial\phi/\partial x|\) и вывести коэффициенты закона через наблюдаемые макропараметры.</p>
+</section>
+
+<section id="formulation" class="section">
+<h2>4. Формулировка</h2>
+
+<p>В 1D: \(g = \partial\phi/\partial x\).</p>
+
+<div class="eq">
+\[
+\boxed{\tau_{\text{total}} = \tau_0 \;+\; \alpha \left|\frac{\partial \phi}{\partial x}\right|
+\;+\; \beta \left(\frac{\partial \phi}{\partial x}\right)^{2}
+\;+\; \mathcal{O}\!\left(\left|\frac{\partial \phi}{\partial x}\right|^{3}\right)}
+\]
+</div>
+
+<p class="small">
+  <strong>Каноническая знаковая форма.</strong>
+  Здесь \(g=\nabla\phi\!\cdot\!\hat{\mathbf{q}}\) — проекция градиента управляемого параметра на направление теплового потока.
+  Эта форма нужна, если важно направление эффекта (ускорение/замедление).
+  Модульная запись из рамки выше удобна как инженерная оценка величины эффекта.
+</p>
+
+<p class="small">В 3D эквивалентная запись получается заменой
+\(\partial\phi/\partial x \to \nabla\phi\!\cdot\!\hat{\mathbf q}\).
+</p>
+
+<p><strong>Словами:</strong> Полная минимальная задержка теплового фронта равна задержке однородного образца плюс поправки, зависящие от величины градиента управляемого параметра.</p>
+
+<div class="eq law">
+\[
+\boxed{\; \tau_{\text{total}} = \tau_0 \;+\; \alpha |\nabla\phi\!\cdot\!\hat{\mathbf{q}}|
+\;+\; \beta (\nabla\phi\!\cdot\!\hat{\mathbf{q}})^2 \;+\; \mathcal{O}(|g|^3) \;}
+\]
+</div>
+
+
+  <p><strong>Определения и единицы:</strong></p>
+<ul>
+  <li>\(\tau_{\text{total}}\) — полная минимальная задержка прихода фронта, [с]</li>
+  <li>\(\tau_0\) — задержка однородного образца при \(g=0\), [с] (в CV: \(L\sqrt{\tau_c\,\rho c_p/\kappa(\phi_0)}\))</li>
+  <li>\(\alpha\) — линейный коэффициент адаптивности среды, [с·м / \(\Phi\)]; возможно \(\alpha=\alpha(T)\)</li>
+  <li>\(\beta\) — квадратичный коэффициент малой нелинейности, [с·м\(^2\) / \(\Phi^2\)]</li>
+  <li>\(\phi\) — управляемый параметр (объёмная доля, директорный вектор, пористость, фазовая доля, магнитная проницаемость), [\(\Phi\)]</li>
+  <li>\(x\) — пространственная координата, [м]</li>
+  <li>\(g\) — проекция градиента управляемого параметра на направление теплового потока:
+      \(g=\nabla\phi\!\cdot\!\hat{\mathbf{q}}\);
+      в 1D: \(g=\partial\phi/\partial x\).
+      Размерность: [\(\Phi\)·м\(^{-1}\)] (для безразмерной \(\phi\): [м\(^{-1}\)])</li>
+  <li>\(\hat{\mathbf{q}}\) — единичный вектор направления теплового потока/фронта (безразмерный)</li>
+  <li>\(\nabla\phi\) — пространственный градиент параметра \(\phi\), [\(\Phi\)·м\(^{-1}\)]</li>
+  <li>\(L\) — длина образца вдоль направления \(\hat{\mathbf{q}}\), [м]</li>
+
+</ul>
+
+
+  <h3>4.1 Альтернативные формы (температурная/полевая зависимость)</h3>
+  <div class="eq">
+    \[
+      \tau_{\text{total}}(T) = \tau_0(T) + \alpha_0\,e^{-\gamma T}\, |\nabla\phi\!\cdot\!\hat{\mathbf{q}}| + \beta(T)\left(\frac{\partial \phi}{\partial x}\right)^2 ,
+    \]
+  </div>
+  <p class="small">Здесь \(\gamma\) — температурный коэффициент с единицами \(\text{К}^{-1}\); \(\alpha_0\) — значение при \(T\!\to\!0\). Для магнитоуправляемых систем \(\alpha=\alpha(\phi,T,B)\).</p>
+  <h3>4.2 Следствие: безразмерная метрика эффективности</h3>
+<div class="eq">
+  \[
+    \eta_{\text{delay}}
+    = \frac{\tau_{\text{total}} - \tau_0}{\tau_0}
+    = \frac{\alpha}{\tau_0}\,|\nabla\phi\!\cdot\!\hat{\mathbf{q}}|
+      + \frac{\beta}{\tau_0}\,(\nabla\phi\!\cdot\!\hat{\mathbf{q}})^2.
+  \]
+</div>
+<p class="small">
+  В знаковой формулировке модуль опускается: \(|\nabla\phi\!\cdot\!\hat{\mathbf{q}}|\to g\).
+  Метрика удобна для сопоставления материалов и профилей при одинаковых \(L\) и условиях контакта.
+</p>
+
+</section>
+
+<section id="generalization" class="section">
+  <h2>5. Область применимости и обобщение</h2>
+  <ul>
+    <li><strong>Тип переноса:</strong> фононный и электронный диффузионный режимы; гидродинамический (второй звук) — по отдельной калибровке \(v(\phi)\). Баллистический режим требует модификации.</li>
+    <li><strong>Где действует:</strong> градиентные метаматериалы, композиты, аэрогели, жидкие кристаллы, феррожидкости, фазопереходные среды.</li>
+    <li><strong>Допущения:</strong> \(|\partial\phi/\partial x|\cdot L \ll \phi_0\); \(\phi\) медленнее теплового фронта; режим линейного отклика.</li>
+    <li><strong>Критерий малоградиентности:</strong>
+  \(\displaystyle \mathcal{G}=\frac{|g|\,L}{\max(\phi_0,\Delta\phi)}\ll 1\).
+  При \(\mathcal{G}\gtrsim 0.2\) ожидаем вклады выше \(O(g^2)\) и рост роли интерфейсов.
+</li>
+    <li><strong>Сопутствующие градиенты:</strong> \(\nabla T\) и \(\nabla p\) влияют на \(\kappa\) и \(v\) через сжимаемость/плотность: \(\kappa(p)\approx \kappa_0 + (\partial\kappa/\partial p)\,p\). Учитывать при аппроксимации.</li>
+    <li><strong>Границы:</strong> для мм-образцов с \(\Delta\phi\lesssim 0.5\) разумно
+  \(|g| = |\nabla\phi\!\cdot\!\hat{\mathbf{q}}| \lesssim 10^3\ \text{м}^{-1}\);
+  выше — возможен выход из линейно-квадратичного режима.
+</li>
+
+  </ul>
+</section>
+
+<section id="proof" class="section">
+  <h2>6. Вывод/пояснения (через модель Cattaneo–Vernotte)</h2>
+  <p>CV‑система: \(\tau_c \,\partial_t \mathbf{q} + \mathbf{q} = -\kappa(\phi)\nabla T\), \( \rho c_p \,\partial_t T + \nabla\!\cdot \mathbf{q} = 0 \Rightarrow\)
+     гиперболическое уравнение с локальной скоростью \( v(\phi) = \sqrt{\kappa(\phi)/(\tau_c \rho c_p)} \).</p>
+  <p>Для \(\phi(x)=\phi_0+g x\), \(g=\nabla\phi\!\cdot\!\hat{\mathbf{q}}\) (в 1D: \(g=\partial\phi/\partial x\)),
+   время пролёта \(t=\int_0^L dx/v(x)\).</p>
+
+
+  <h3>6.1 Подробные шаги вывода \(\alpha,\beta\)</h3>
+  <ol>
+    <li>Разложение скорости: \(v(x)=v(\phi_0+g x)\approx v_0 + v'(\phi_0)\,g x + \tfrac12 v''(\phi_0)\,g^2 x^2\).</li>
+    <li>Разложение обратной величины: \(\frac{1}{v(x)}=\frac{1}{v_0+\delta}\approx \frac{1}{v_0} - \frac{\delta}{v_0^2} + \frac{\delta^2}{v_0^3}\), где \(\delta=v' g x + \tfrac12 v'' g^2 x^2\).</li>
+    <li>Интегрирование по длине:
+      \[
+      t=\int_0^L\!\frac{dx}{v(x)}\approx \frac{L}{v_0} - \frac{v'}{v_0^2}\frac{gL^2}{2} + \frac{3v'^2 - v_0 v''}{6 v_0^3}\, g^2 L^3 .
+      \]
+    </li>
+    <li>Идентификация: \(\tau_0=\frac{L}{v_0}\), \(\alpha=\frac{L^2}{2}\frac{|v'|}{v_0^2}\), \(\beta=\frac{L^3}{6}\frac{|3v'^2-v_0 v''|}{v_0^3}\).</li>
+  </ol>
+  <h3>6.2 Связь \(\alpha,\beta\) с материал-функциями</h3>
+<p>С учётом \(v(\phi)=\sqrt{\kappa(\phi)/(\tau_c(\phi)\,\rho(\phi)c_p(\phi))}\) имеем:</p>
+<div class="eq">
+  \[
+    \frac{\partial\ln v}{\partial\phi}
+    = \tfrac12\!\left(
+      \frac{\partial\ln \kappa}{\partial\phi}
+      - \frac{\partial\ln \tau_c}{\partial\phi}
+      - \frac{\partial\ln (\rho c_p)}{\partial\phi}
+    \right),\qquad
+    \frac{\partial^2\ln v}{\partial\phi^2}
+    = \tfrac12\!\left(
+      \frac{\partial^2\ln \kappa}{\partial\phi^2}
+      - \frac{\partial^2\ln \tau_c}{\partial\phi^2}
+      - \frac{\partial^2\ln (\rho c_p)}{\partial\phi^2}
+    \right).
+  \]
+</div>
+<p class="small">
+  Эти выражения позволяют предсказывать \(\alpha(\phi_0)\), \(\beta(\phi_0)\) из независимых калибровок
+  \(\kappa(\phi),\,\tau_c(\phi),\,\rho(\phi)c_p(\phi)\) и сопоставлять их с фит-оценками из эксперимента.
+</p>
+
+  <p class="small">Если важно направление эффекта (ускорение/замедление), используйте **знаковую** форму без модулей.</p>
+
+</section>
+
+<section id="predictions" class="section">
+  <h2>7. Прогнозы, проверяемые следствия</h2>
+  <ul>
+    <li>Линейность \(\tau_{\text{total}}-\tau_0\) по \(|g|\) при малых градиентах; квадратичная поправка для больших \(|g|\).</li>
+    <li>Масштабирование: \(\alpha\propto L^2\), \(\beta\propto L^3\).</li>
+    <li>С учётом \(\nabla p\): при росте давления в жидкостях возможна коррекция \(v(\phi,p)\) → поправка к \(\alpha(T,p)\).</li>
+  </ul>
+</section>
+
+<section id="experiment" class="section">
+  <h2>8. Мини-эксперимент</h2>
+  <div class="grid">
+    <div>
+      <ul>
+        <li><strong>Образцы:</strong> три пластины одинаковой длины \(L\) с \(|g|\in\{0,\,g,\,2g\}\); одинаковые покрытия и контактные условия.</li>
+        <li><strong>Методы (по шкале времени):</strong>
+          <ul>
+            <li><em>TDTR, pump–probe (кГц–МГц):</em> тонкие плёнки/мембраны \(L\lesssim 50\!-\!200~\mu\text{м}\), окна нс–мкс.</li>
+            <li><em>Фотоакустика / ИК-термография:</em> миллиметровые образцы \(L\sim 0.5\!-\!2~\text{мм}\), окна десятки–сотни мкс.</li>
+          </ul>
+        </li>
+        <li><strong>Импульс:</strong> длительность 0.5–10 нс; частота повторения 0.1–10 МГц (подбирается под целевую \(\tau_{\text{total}}\) и \(L\)).</li>
+        <li><strong>Контакты:</strong> контролировать и симметризовать \(R_\text{int}\) вход/выход; одинаковые адгезионные слои.</li>
+        <li><strong>Метод выделения времени пролёта:</strong> критерий порога фронта или кросс-корреляционный пик между входом и детектором; одно и то же правило для всех серий.</li>
+        <li><strong>Обработка:</strong> фит \(y=\tau_{\text{total}}-\tau_0=a_1\,g+a_2\,g^2\) (или \(a_1\,|g|+a_2 g^2\) для модульной формы); \(a_1\!\to\!\alpha\), \(a_2\!\to\!\beta\). Сравнивать AIC/BIC для моделей \(\{a_1\}\) и \(\{a_1,a_2\}\).</li>
+        <li><strong>Оценки погрешности:</strong> \(\pm 0.5~\mu\text{с}\) по времени; неоднородность \(g\) — \(\pm 5\%\); шум детектора — \(\le 2\%\).</li>
+      </ul>
+    </div>
+    <div>
+      <figure>
+        <svg viewBox="0 0 640 180" width="100%" height="140" xmlns="http://www.w3.org/2000/svg" aria-label="Схемы">
+          <defs>
+            <linearGradient id="gphi" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#d6e4ff"/><stop offset="100%" stop-color="#597ef7"/>
+            </linearGradient>
+            <marker id="arrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#8c8c8c" />
+            </marker>
+          </defs>
+          <!-- sample -->
+          <rect x="60" y="30" width="500" height="36" fill="url(#gphi)" stroke="#cfd8ea"/>
+          <text x="60" y="24" font-size="12" fill="#444">φ(x) = φ₀ + g·x</text>
+          <circle cx="60" cy="48" r="7" fill="#ff7875" stroke="#e66a66"/>
+          <rect x="560" y="26" width="8" height="44" fill="#52c41a" stroke="#45a112"/>
+          <line x1="80" y1="48" x2="555" y2="48" stroke="#8c8c8c" stroke-width="2" marker-end="url(#arrow)"/>
+          <text x="45" y="70" font-size="12" fill="#444">Pulse</text>
+          <text x="540" y="80" font-size="12" fill="#444">Detector</text>
+          <!-- graph -->
+          <rect x="360" y="90" width="240" height="70" fill="#fff" stroke="#e8e8e8"/>
+          <line x1="370" y1="150" x2="590" y2="150" stroke="#bbb"/>
+          <line x1="370" y1="150" x2="370" y2="100" stroke="#bbb"/>
+          <path d="M370,150 C410,145 450,132 590,100" fill="none" stroke="#597ef7" stroke-width="2"/>
+          <text x="380" y="98" font-size="12" fill="#444">τ_total(g) = τ₀ + a₁|g| + a₂g²</text>
+        </svg>
+        <figcaption>Слева: схема пролёта импульса. Справа: типичная зависимость \(\tau_{\text{total}}(g)\).</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+
+<section id="materials" class="section">
+  <h2>9. Типичные диапазоны коэффициентов (ориентировочно)</h2>
+
+  <table>
+    <thead><tr><th>Материал/система</th><th>Параметр \(\phi\)</th><th>\(\alpha\) (с·м)</th><th>\(\beta\) (с·м\(^2\))</th></tr></thead>
+  <tbody>
+      <tr><td>Нанокомпозит SiO\(_2\)/PMMA</td><td>объёмная доля наночастиц</td><td>\(10^{-8}\)–\(10^{-7}\)</td><td>\(10^{-11}\)–\(10^{-10}\)</td></tr>
+      <tr><td>Жидкий кристалл</td><td>директорный вектор (усреднённая ориентация)</td><td>\(10^{-9}\)–\(10^{-8}\)</td><td>\(10^{-12}\)–\(10^{-11}\)</td></tr>
+      <tr><td>Аэрогель</td><td>пористость</td><td>\(10^{-8}\)–\(10^{-7}\)</td><td>\(10^{-11}\)–\(10^{-10}\)</td></tr>
+    </tbody>
+  </table>
+  <p class="small">Диапазоны ориентировочные: \(\alpha(T)\) у ряда нанокомпозитов снижается при росте \(T\) (порядка десятков % между 100–300 К) — уточняется экспериментально.*\(^{1}\)</p>
+  <p class="small">
+*\(^{1}\) - Уточняются для конкретных материалов и температур. 
+Если \(\phi\) имеет размерность, то \(\alpha\) имеет размерность с·м / [ед. \(\phi\)], 
+а \(\beta\) — с·м² / [ед. \(\phi\)]²; например, при \(\phi\) в А/м — с·м/(А/м), 
+при \(\phi\) в Па — с·м/Па.
+</p>
+
+</section>
+
+<section id="applications" class="section">
+  <h2>10. Практические приложения</h2>
+  <ul>
+    <li><strong>Микроэлектроника:</strong> динамические тепловые барьеры над горячими узлами (управляемый \(g\)).</li>
+    <li><strong>Космические покрытия:</strong> адаптивные теплозащитные слои с градиентом \(\phi\) по толщине.</li>
+    <li><strong>Биомедицина:</strong> управляемая гипертермия в тканях/гидрогелях с пространственным профилем \(\phi\).</li>
+    <li><strong>Диагностика материалов:</strong> обратная задача: восстановление \(\phi(x)\) по измеренной \(\tau_{\text{total}}(g)\).</li>
+  </ul>
+</section>
+
+<section id="numeric" class="section">
+  <h2>11. Численные примеры</h2>
+  <h3>11.1 Пример (замедление)</h3>
+  <p>\(L=1\ \text{мм}\), \(\tau_c=1\ \mu\text{с}\), \(\rho c_p=2\cdot10^6\ \text{Дж}/\text{м}^3\!\cdot\!\text{К}\), \(\kappa(\phi_0)=200\ \text{Вт}/(\text{м}\!\cdot\!\text{К})\).
+     Тогда \(v_0\approx 10\ \text{м/с}\), \(\tau_0=0.1\ \text{мс}\).
+     Пусть \(v'(\phi_0)=-5\ \text{м/с}\), \(v''(\phi_0)=15\ \text{м/с}\), \(|g|=500\ \text{м}^{-1}\).
+  </p>
+  <div class="eq">
+    \[
+      \alpha=\frac{L^2}{2}\frac{|v'|}{v_0^2}=2.5\cdot10^{-8}\ \text{с·м},\quad
+      \beta=\frac{L^3}{6}\frac{3v'^2-v_0 v''}{v_0^3}\approx -1.25\cdot10^{-11}\ \text{с·м}^2
+    \]
+  </div>
+  <div class="eq">
+    \[
+      \Delta\tau_1=\alpha|g|=12.5\ \mu\text{с},\quad
+      \Delta\tau_2=\beta g^2\approx -3.125\ \mu\text{с},\quad
+      \tau_{\text{total}}\approx 0.109\ \text{мс}
+    \]
+  </div>
+<h3>11.2 Аэрогель (ориентировочно)</h3>
+<p>\(L=2\ \text{мм}\), \(v_0\) мал из-за низкой \(\kappa\); примем \(\alpha=5\cdot10^{-8}\ \text{с·м}\), \(|g|=1000\ \text{м}^{-1}\).</p>
+<div class="eq">
+  \[
+    \Delta\tau_1=\alpha|g|=50\ \mu\text{с},\quad
+    \Delta\tau_2\ \text{мала}\ \Rightarrow\ \tau_{\text{total}}\approx \tau_0+50\ \mu\text{с}.
+  \]
+</div>
+
+<h3>11.3 Жидкий кристалл (директорный вектор)</h3>
+<p>\(L=0.5\ \text{мм}\), \(v_0\approx 14\ \text{м/с}\), \(v'(\phi_0)=2\ \text{м/с}\), \(|g|=800\ \text{м}^{-1}\).</p>
+<div class="eq">
+  \[
+    \alpha=\frac{L^2}{2}\frac{|v'|}{v_0^2}\approx 1.3\cdot10^{-9}\ \text{с·м}
+  \]
+</div>
+<div class="eq">
+  \[
+    \Delta\tau_1=\alpha|g|\approx 1.0\ \mu\text{с},\quad
+    \tau_{\text{total}}\approx \tau_0+1.0\ \mu\text{с}.
+  \]
+</div>
+
+  <h3>11.4 Пример (ускорение)</h3>
+  <p>Те же параметры, но \(v'(\phi_0)=+5\ \text{м/с}\), \(g=+500\ \text{м}^{-1}\). Линейная поправка в знаковой форме:
+    \(\Delta t^{(1)} = - \frac{v'}{v_0^2}\frac{gL^2}{2} \approx -12.5\ \mu\text{с}\).
+    С учётом \(\beta g^2 \approx -3.125\ \mu\text{с}\), получаем \(\tau_{\text{total}}\approx 0.100 - 0.0125 - 0.003125 \approx 0.0844\ \text{мс}\).
+  </p>
+
+<h3>11.5 Феррожидкость (влияние магнитного поля)</h3>
+<p>Для феррожидкости можно считать \(\phi(B)\approx \phi_0 + k\,\chi B^2\) (кластеризация/ориентация),
+где \(\chi\) — магнитная восприимчивость. Тогда линейный коэффициент
+\(\alpha(B)\propto \left|\frac{\partial v}{\partial \phi}\right|\,|\nabla\phi\!\cdot\!\hat{\mathbf{q}}|
+\sim \alpha_0\,(1 + c\,\chi B^2)\) при тех же \(|g|\). Это даёт управляемое уменьшение/увеличение задержки при изменении \(B\).</p><p>Для MnFe₂O₄ (\(\chi \approx 0.1\)) при \(B=1\ \text{Тл}\): \(\alpha(B)\approx \alpha_0\,(1 + 0.05 B^2)\).</p>
+</section>
+
+<section id="literature" class="section">
+  <h2>12. Литература и сопоставление</h2>
+  <p class="small">Ключевые обзоры по TDTR/ИК-термографии, градиентным материалам и не-фурье-моделям (CV/MCV). При появлении экспериментальных данных по \(\Delta\tau\) они могут быть добавлены в таблицу.</p>
+  <ul>
+    <li>[1] D. G. Cahill et&nbsp;al., “Nanoscale thermal transport. II. 2003–2012,” <em>Applied Physics Reviews</em> <strong>1</strong>, 011305 (2014). 
+      <a href="https://doi.org/10.1063/1.4832615" target="_blank" rel="noopener">DOI</a>,
+      <a href="https://web.stanford.edu/group/fan/publication/Cahill_AppliedPhysicsReview_1_011305_2014.pdf" target="_blank" rel="noopener">PDF</a>
+    </li>
+    <li>[2] D. G. Cahill, “Analysis of heat flow in layered structures for time-domain thermoreflectance,” <em>Rev. Sci. Instrum.</em> <strong>75</strong>, 5119 (2004). 
+      <a href="https://doi.org/10.1063/1.1819431" target="_blank" rel="noopener">DOI</a>,
+      <a href="https://www.conoptics.com/wp-content/uploads/2013/09/Analysis-of-heat-flow-in-layered-structures-for-time-domain.pdf" target="_blank" rel="noopener">PDF</a>
+    </li>
+    <li>[3] H. M. Yin et&nbsp;al., “Effective Thermal Conductivity of Functionally Graded Composites…,” <em>J. Appl. Mech.</em> <strong>75</strong>, 051113 (2008). 
+      <a href="https://doi.org/10.1115/1.2936893" target="_blank" rel="noopener">DOI</a> <span class="small">(уточнить рис./страницу при цитировании)</span>
+    </li>
+    <li>[4] A. I. Zhmakin, “The Zoo of Non-Fourier Heat Conduction Models,” arXiv:2212.12922 (2022). 
+      <a href="https://arxiv.org/abs/2212.12922" target="_blank" rel="noopener">arXiv</a>,
+      <a href="https://arxiv.org/pdf/2212.12922" target="_blank" rel="noopener">PDF</a>
+    </li>
+    <li>[5] J.-H. Choi et&nbsp;al., “Analytical solution of the Cattaneo–Vernotte equation,” JAMET (2016). 
+      <a href="https://e-jamet.org/xml/06818/06818.pdf" target="_blank" rel="noopener">PDF</a>
+    </li>
+    <li>[6] Жидкий кристалл 5CB (E-field). 
+      <a href="https://doi.org/10.1103/PhysRevE.96.012703" target="_blank" rel="noopener">DOI</a>
+    </li>
+    <li>[7] Аэрогель SiO\(_2\) (TDTR). 
+      <a href="https://doi.org/10.1016/j.actamat.2014.06.026" target="_blank" rel="noopener">DOI</a>
+    </li>
+    <li>[8] Метаматериал с градиентом \(\kappa(x)\). 
+      <a href="https://doi.org/10.1103/PhysRevB.95.205426" target="_blank" rel="noopener">DOI</a>
+    </li>
+  </ul>
+
+  <table>
+    <thead><tr><th>Источник</th><th>Материал</th><th>\(|g|\) (м\(^{-1}\))</th><th>\(\Delta\tau\) измерено (мкс)</th><th>\(\Delta\tau\) модель (мкс)</th></tr></thead>
+<tbody>
+  <tr>
+    <td>[3] Yin 2008</td>
+    <td>FGM композит (градиент доли частиц)</td>
+    <td>300<sup>*</sup></td>
+    <td>—</td>
+    <td>≈ 8.6<sup>†</sup></td>
+  </tr>
+  <tr>
+    <td>[6] Жидкий кристалл 5CB</td>
+    <td>директорный вектор (усреднённая ориентация)</td>
+    <td>800</td>
+    <td>—</td>
+    <td>≈ 1.0</td>
+  </tr>
+  <tr>
+    <td>[7] Аэрогель SiO\(_2\) </td>
+    <td>пористость (градиент по толщине)</td>
+    <td>1000</td>
+    <td>—</td>
+    <td>≈ 50</td>
+  </tr>
+  <tr>
+    <td>[8] Метаматериал с градиентом \(\kappa(x)\)</td>
+    <td>\(\kappa(\phi(x))\) с контролем наполнителя</td>
+    <td>600</td>
+    <td>—</td>
+    <td>≈ 6.5</td>
+  </tr>
+</tbody>
+  </table>
+  <p class="small"><sup>*</sup> Оценка: \(\Delta\phi\approx 0.3\) на \(L=1\) мм ⇒ \(|g|\approx 300\ \text{м}^{-1}\). <sup>†</sup> Расчёт по \(\Delta\tau=\alpha|g|+\beta g^2\) с параметрами из примера 11.1.</p>
+</section>
+
+<section id="glossary" class="section">
+  <h2>13. Глоссарий</h2>
+  <ul>
+<li><strong>\(\phi\)</strong> — управляемый параметр среды; безразмерный в примерах (доля, усреднённая ориентация), но в общем случае может иметь размерность (напр., А/м — для намагниченности, Па — для давления, фракция по объёму для наполнителя).</li>
+<li><strong>Директорный вектор</strong> — единичный вектор, задающий ось ориентации молекул в жидком кристалле; физически \(\mathbf{n}\) и \(-\mathbf{n}\) эквивалентны.</li>
+<li><strong>\(\tau_c\)</strong> — время релаксации теплового потока в модели CV.</li>
+<li><strong>TDTR</strong> — Time-Domain ThermoReflectance, импульсный лазерный метод измерения теплопроводности и тепловой диффузии с наносекундным–пикосекундным разрешением; основан на регистрации изменения коэффициента отражения образца от времени после лазерного нагрева.</li>
+
+
+  </ul>
+</section>
+<footer class="meta">
+<p>© PNNPL — Professor Nikura's New Physical Laws. Plagiarism is prohibited.
+<a href="https://zenodo.org/search?q=metadata.creators.person_or_org.name%3A%22Nikura%22&l=list&p=1&s=10&sort=bestmatch" target="_blank" rel="noopener noreferrer">Prof. N1KURA</a>
+</p>
+  </footer>
+</main>
+</body>
+</html>
